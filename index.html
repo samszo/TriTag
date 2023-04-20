@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" />
+
+    <title>TriTag</title>
+    <style>
+        #main {
+            margin: 3px;
+            float: left;
+        }
+        #detail {
+            float: left;
+            margin: 3px;
+            width: 65%;
+            height: 800px;
+        }
+        #ifDetail {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="main"></div>
+    <div id="detail"><iframe id="ifDetail" ></iframe></div>
+    <script type="module" >
+
+import {omk} from './modules/omk.js';
+
+let urlOmk = "http://localhost/samszo/omk/", o = new omk({'api':urlOmk+"api/"}),
+tags = o.getAllItems('resource_class_id=137'),
+headers=['id','tag','nbCaract'],
+ifDetail = d3.select("#ifDetail"),
+data = tags.map(t=>{return {'id':t['o:id'],'tag':t['o:title'],'nbCaract':t['o:title'].length}; });
+ifDetail.attr('src',urlOmk);
+
+const container = document.querySelector('#main');
+
+const hot = new Handsontable(container, {
+    data: data,
+    colHeaders: headers,
+    rowHeaders: true,
+    height: '800',
+    width: '600',
+    licenseKey: 'non-commercial-and-evaluation',
+    customBorders: true,
+    dropdownMenu: true,
+    multiColumnSorting: true,
+    filters: true,
+    selectionMode:'single',
+    allowInsertColumn: false,
+    copyPaste: false,
+});
+hot.addHook('afterSelectionEnd', (r, c) => {
+        let d = hot.getDataAtRow(r);
+        ifDetail.attr('src',urlOmk+'admin/item/'+d[0]+'/edit');
+
+    });
+    </script>
+</body>
+</html>
